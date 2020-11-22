@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/all_restaurants">
+
+    <fragment
+        android:id="@+id/all_restaurants"
+        android:name="com.comunisolve.newmultiplerestaurantsapp.ui.allrestaurants.AllRestaurants"
+        android:label="@string/all_restaurants"
+        tools:layout="@layout/fragment_all_restaurant" />
+    <fragment
+        android:id="@+id/nearBy_restaurant"
+        android:name="com.comunisolve.newmultiplerestaurantsapp.ui.nearbyRestaurants.NearByRestaurantsFragment"
+        android:label="@string/nearby_restaurant"
+        tools:layout="@layout/near_by_restaurants_fragment" />
+
+    <fragment
+        android:id="@+id/nav_order_history"
+        android:name="com.comunisolve.newmultiplerestaurantsapp.ui.orderhistory.OrderHistoryFragment"
+        android:label="@string/order_history"
+        tools:layout="@layout/fragment_order_history" />
+
+    <fragment
+        android:id="@+id/nav_update_info"
+        android:name="com.comunisolve.newmultiplerestaurantsapp.ui.updateInformation.UpdateInfoFragment"
+        android:label="@string/update_info"
+        tools:layout="@layout/fragment_update_information" />
+</navigation>

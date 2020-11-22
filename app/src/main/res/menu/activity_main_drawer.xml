@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/all_restaurants"
+            android:icon="@drawable/ic_restaurant"
+            android:title="@string/all_restaurants" />
+
+    </group>
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nearBy_restaurant"
+            android:icon="@drawable/ic_restaurant"
+            android:title="@string/nearby_restaurant" />
+
+    </group>
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_order_history"
+            android:icon="@drawable/ic_baseline_history_24"
+            android:title="@string/order_history" />
+    </group>
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_update_info"
+            android:icon="@drawable/ic_account_circle_24"
+            android:title="@string/update_info" />
+    </group>
+</menu>
