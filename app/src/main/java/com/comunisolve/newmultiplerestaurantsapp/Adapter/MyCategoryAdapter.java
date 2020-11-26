@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.comunisolve.newmultiplerestaurantsapp.Common.Common;
 import com.comunisolve.newmultiplerestaurantsapp.EventBus.FoodListEvent;
-import com.comunisolve.newmultiplerestaurantsapp.Interface.IOnRecyclerViewClickLstner;
+import com.comunisolve.newmultiplerestaurantsapp.Interface.IOnRecyclerViewClickListner;
 import com.comunisolve.newmultiplerestaurantsapp.Model.Category;
 import com.comunisolve.newmultiplerestaurantsapp.R;
 import com.comunisolve.newmultiplerestaurantsapp.FoodListActivity;
@@ -46,7 +46,7 @@ public class MyCategoryAdapter extends RecyclerView.Adapter<MyCategoryAdapter.My
         Picasso.get().load(Common.API_RESTAURANT_ENDPOINT + categoryList.get(position).getImage()).into(holder.img_category);
 
         holder.txt_category.setText(categoryList.get(position).getName());
-        holder.setLstner(new IOnRecyclerViewClickLstner() {
+        holder.setLstner(new IOnRecyclerViewClickListner() {
             @Override
             public void onClick(View view, int position) {
                 EventBus.getDefault().postSticky(new FoodListEvent(true, categoryList.get(position)));
@@ -65,9 +65,9 @@ public class MyCategoryAdapter extends RecyclerView.Adapter<MyCategoryAdapter.My
         ImageView img_category;
         TextView txt_category;
 
-        IOnRecyclerViewClickLstner lstner;
+        IOnRecyclerViewClickListner lstner;
 
-        public void setLstner(IOnRecyclerViewClickLstner lstner) {
+        public void setLstner(IOnRecyclerViewClickListner lstner) {
             this.lstner = lstner;
         }
 

@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.comunisolve.newmultiplerestaurantsapp.Database.CartDataSource;
 import com.comunisolve.newmultiplerestaurantsapp.Database.CartDatabase;
 import com.comunisolve.newmultiplerestaurantsapp.Database.LocalCartDataSource;
 import com.comunisolve.newmultiplerestaurantsapp.EventBus.MenuItemEvent;
+import com.comunisolve.newmultiplerestaurantsapp.Model.FavoriteOnlyIdModel;
 import com.comunisolve.newmultiplerestaurantsapp.Retrofit.IMyRestaurantAPI;
 import com.comunisolve.newmultiplerestaurantsapp.Retrofit.RetrofitClient;
 import com.comunisolve.newmultiplerestaurantsapp.Utils.SpaceItemDecoration;
@@ -27,11 +29,14 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
+
 import dmax.dialog.SpotsDialog;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class MenuActivity extends AppCompatActivity {
@@ -59,6 +64,7 @@ public class MenuActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         countCartByRestaurant();
+
     }
 
     @Override
@@ -77,10 +83,38 @@ public class MenuActivity extends AppCompatActivity {
         init();
         initView();
         countCartByRestaurant();
+        loadFavoriteByRestaurant();
+    }
+
+    private void loadFavoriteByRestaurant() {
+        compositeDisposable.add(myRestaurantAPI.getFavoriteByRestaurant(Common.API_KEY,
+                Common.currentUser.getFbid(),
+                Common.currentRestaurant.getId()
+        ).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(favoriteOnlyIdModel -> {
+
+                            if (favoriteOnlyIdModel.isSuccess()) {
+                                if (favoriteOnlyIdModel.getResult() != null && favoriteOnlyIdModel.getResult().size() > 0) {
+
+                                    Common.currentFavOfRestaurant = favoriteOnlyIdModel.getResult();
+
+                                } else {
+                                    Common.currentFavOfRestaurant = new ArrayList<>();
+
+                                }
+                            } else {
+                                Toast.makeText(this, "[GET FAVORITE]" + favoriteOnlyIdModel.getMessage(), Toast.LENGTH_SHORT).show();
+
+                            }
+                        },
+                        throwable -> {
+                            Toast.makeText(this, "[GET FAVORITE]" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                        }));
     }
 
     private void countCartByRestaurant() {
-        cartDataSource.countItemInCart(Common.currentUser.getUserPhone(),
+        cartDataSource.countItemInCart(Common.currentUser.getFbid(),
                 Common.currentRestaurant.getId())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -104,7 +138,7 @@ public class MenuActivity extends AppCompatActivity {
 
     private void initView() {
         binding.fab.setOnClickListener(view -> {
-
+            startActivity(new Intent(MenuActivity.this,CartListActivity.class));
 
         });
 
@@ -179,7 +213,7 @@ public class MenuActivity extends AppCompatActivity {
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(menuModel -> {
-                                       // Toast.makeText(this, "[Success Category]" + menuModel.getResult().get(0).getName(), Toast.LENGTH_SHORT).show();
+                                        // Toast.makeText(this, "[Success Category]" + menuModel.getResult().get(0).getName(), Toast.LENGTH_SHORT).show();
 
 
                                         adapter = new MyCategoryAdapter(MenuActivity.this, menuModel.getResult());

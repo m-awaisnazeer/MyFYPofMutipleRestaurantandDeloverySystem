@@ -1,19 +1,58 @@
 package com.comunisolve.newmultiplerestaurantsapp.ui.orderhistory;
 
+import android.app.Application;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
-public class OrderHistoryViewModel extends ViewModel {
+import com.comunisolve.newmultiplerestaurantsapp.Common.Common;
+import com.comunisolve.newmultiplerestaurantsapp.Model.OrderModel;
+import com.comunisolve.newmultiplerestaurantsapp.Retrofit.IMyRestaurantAPI;
+import com.comunisolve.newmultiplerestaurantsapp.Retrofit.RetrofitClient;
 
-    private MutableLiveData<String> mText;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
-    public OrderHistoryViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is gallery fragment");
+public class OrderHistoryViewModel extends AndroidViewModel {
+
+    IMyRestaurantAPI myRestaurantAPI;
+    CompositeDisposable compositeDisposable = new CompositeDisposable();
+
+    MutableLiveData<OrderModel> modelMutableLiveData;
+
+    public void onDestroy() {
+        compositeDisposable.clear();
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    public OrderHistoryViewModel(@NonNull Application application) {
+        super(application);
+        myRestaurantAPI = RetrofitClient.getInstance(Common.API_RESTAURANT_ENDPOINT).create(IMyRestaurantAPI.class);
+
+
     }
+
+    public MutableLiveData<OrderModel> getOrderHistory() {
+
+        if (modelMutableLiveData == null) {
+            modelMutableLiveData = new MutableLiveData();
+            compositeDisposable.add(myRestaurantAPI.getOrder(Common.API_KEY
+                    , Common.currentUser.getFbid())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(orderModel -> {
+                        modelMutableLiveData.setValue(orderModel);
+
+                    }, throwable -> {
+                        Toast.makeText(getApplication(), "[GET ORDER]" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                    }));
+        }
+
+        return modelMutableLiveData;
+    }
+
 }

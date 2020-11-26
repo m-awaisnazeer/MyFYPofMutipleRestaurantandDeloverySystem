@@ -52,8 +52,8 @@ public class HomeActivity extends AppCompatActivity {
                         }).setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                Common.currentUser=null;
-                                Common.currentRestaurant=null;
+                                Common.currentUser = null;
+                                Common.currentRestaurant = null;
                                 FirebaseAuth.getInstance().signOut();
                                 startActivity(new Intent(HomeActivity.this, StartActivity.class));
                                 finish();
@@ -80,12 +80,14 @@ public class HomeActivity extends AppCompatActivity {
 
 
         email.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-        name.setText(Common.currentUser.getName());
+        if (Common.currentUser.getName() != null) {
+            name.setText(Common.currentUser.getName());
+        }
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.all_restaurants,R.id.nearBy_restaurant, R.id.nav_order_history, R.id.nav_update_info)
+                R.id.all_restaurants, R.id.nearBy_restaurant, R.id.nav_order_history, R.id.nav_update_info)
                 .setDrawerLayout(drawer)
                 .build();
 

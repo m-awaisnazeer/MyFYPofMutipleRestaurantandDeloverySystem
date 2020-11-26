@@ -17,6 +17,12 @@
         tools:layout="@layout/near_by_restaurants_fragment" />
 
     <fragment
+        android:id="@+id/nav_favorite"
+        android:name="com.comunisolve.newmultiplerestaurantsapp.ui.favorites.FavoritesFragment"
+        android:label="@string/nav_favorite"
+        tools:layout="@layout/favorites_fragment" />
+
+    <fragment
         android:id="@+id/nav_order_history"
         android:name="com.comunisolve.newmultiplerestaurantsapp.ui.orderhistory.OrderHistoryFragment"
         android:label="@string/order_history"

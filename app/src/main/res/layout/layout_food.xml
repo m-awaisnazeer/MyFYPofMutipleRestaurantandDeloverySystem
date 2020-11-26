@@ -63,8 +63,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/img_cart"
-
                 android:src="@drawable/ic_baseline_shopping_cart_24"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:id="@+id/img_fav"
+                android:src="@drawable/ic_un_favorite"/>
+
 
         </LinearLayout>
 

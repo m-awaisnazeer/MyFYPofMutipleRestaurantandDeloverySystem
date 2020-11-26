@@ -6,7 +6,7 @@ plugins {
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.1"
+    buildToolsVersion "30.0.2"
 
 
     defaultConfig {
@@ -90,4 +90,14 @@ dependencies {
     implementation 'androidx.room:room-rxjava2:2.3.0-alpha03'
 
     implementation 'com.github.florent37:expansionpanel:1.2.2'
+
+    implementation 'com.wdullaer:materialdatetimepicker:4.2.0'
+
+    //Braintree
+   //implementation 'com.braintreepayments.api:drop-in:5.0.1'
+
+   // implementation 'com.braintreepayments.api:drop-in:5.0.2-SNAPSHOT'
+
+    implementation 'com.braintreepayments.api:drop-in:5.0.1'
+    implementation 'com.braintreepayments.api:three-d-secure:3.14.2'
 }

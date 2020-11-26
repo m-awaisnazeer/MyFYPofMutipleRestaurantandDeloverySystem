@@ -31,10 +31,10 @@ class AlertDialogFragment : DialogFragment() {
 
     var myRestaurantAPI: IMyRestaurantAPI? = null
     var disposable = CompositeDisposable()
-    lateinit var editUserPhone:EditText
-    lateinit var editUserName:EditText
-    lateinit var editUserAddress:EditText
-    lateinit var button_continue:Button
+    lateinit var editUserPhone: EditText
+    lateinit var editUserName: EditText
+    lateinit var editUserAddress: EditText
+    lateinit var button_continue: Button
     var dialog: AlertDialog? = null
 
 
@@ -49,8 +49,8 @@ class AlertDialogFragment : DialogFragment() {
 //    }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
 
@@ -62,7 +62,7 @@ class AlertDialogFragment : DialogFragment() {
 
         editUserName = view.findViewById(R.id.edit_name)
         editUserPhone = view.findViewById(R.id.edit_phone)
-        editUserAddress = view.findViewById(R.id.edit_email_address)
+        editUserAddress = view.findViewById(R.id.txt_user_address)
 
         button_continue = view.findViewById(R.id.button_continue)
 

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.comunisolve.newmultiplerestaurantsapp.Common.Common;
 import com.comunisolve.newmultiplerestaurantsapp.EventBus.MenuItemEvent;
-import com.comunisolve.newmultiplerestaurantsapp.Interface.IOnRecyclerViewClickLstner;
+import com.comunisolve.newmultiplerestaurantsapp.Interface.IOnRecyclerViewClickListner;
 import com.comunisolve.newmultiplerestaurantsapp.MenuActivity;
 import com.comunisolve.newmultiplerestaurantsapp.Model.Restaurant;
 import com.comunisolve.newmultiplerestaurantsapp.R;
@@ -63,7 +63,7 @@ public class MyRestaurantAdapter extends RecyclerView.Adapter<MyRestaurantAdapte
     public class MyRestaurantAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView img_restaurant;
         TextView txt_restaurant_name, txt_restaurant_address;
-        IOnRecyclerViewClickLstner lstner;
+        IOnRecyclerViewClickListner lstner;
 
         public MyRestaurantAdapterViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -76,7 +76,7 @@ public class MyRestaurantAdapter extends RecyclerView.Adapter<MyRestaurantAdapte
 
         }
 
-        public void setLstner(IOnRecyclerViewClickLstner lstner) {
+        public void setLstner(IOnRecyclerViewClickListner lstner) {
             this.lstner = lstner;
         }
 

@@ -75,7 +75,7 @@ public class AllRestaurants extends Fragment {
     }
 
     private void loadRestaurant() {
-        dialog.show();
+//        dialog.show();
         compositeDisposable.add(myRestaurantAPI.getRestaurant(Common.API_KEY)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

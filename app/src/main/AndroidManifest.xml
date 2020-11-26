@@ -13,8 +13,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NewMultipleRestaurantsApp"
         android:usesCleartextTraffic="true">
-        <activity android:name=".FoodDetailsActivity"
+        <activity android:name=".CartListActivity"
             android:theme="@style/Theme.NewMultipleRestaurantsApp.NoActionBar"></activity>
+        <activity android:name=".PlaceOrderActivity"
+            android:theme="@style/Theme.NewMultipleRestaurantsApp.NoActionBar"/>
+        <activity
+            android:name=".FoodDetailsActivity"
+            android:theme="@style/Theme.NewMultipleRestaurantsApp.NoActionBar" />
         <activity
             android:name=".StartActivity"
             android:theme="@style/Theme.NewMultipleRestaurantsApp.NoActionBar" />
