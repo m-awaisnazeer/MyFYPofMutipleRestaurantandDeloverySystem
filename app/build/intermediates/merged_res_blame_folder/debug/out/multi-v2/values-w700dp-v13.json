@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "/home/ali/AndroidStudioProjects/NewMultipleRestaurantsApp/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-w700dp-v13/values-w700dp-v13.xml",
+            "map": [
+                {
+                    "source": "/home/ali/.gradle/caches/transforms-2/files-2.1/26f333e9ea6edab851e8bfc76033fafe/jetified-drop-in-5.0.1/res/values-w700dp-v13/values-w700dp-v13.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "45",
+                        "endOffsets": "96"
+                    }
+                }
+            ]
+        }
+    ]
+}
