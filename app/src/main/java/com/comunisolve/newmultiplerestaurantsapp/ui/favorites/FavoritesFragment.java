@@ -83,11 +83,13 @@ public class FavoritesFragment extends Fragment {
                 .subscribe(favoriteModel -> {
 
                             if (favoriteModel.isSuccess()) {
-                                adapter = new MyFavoriteAdapter(requireContext(),favoriteModel.getResult());
+                                adapter = new MyFavoriteAdapter(requireContext(), favoriteModel.getResult());
                                 recyclerView_fav_list.setAdapter(adapter);
                             } else {
-                                Toast.makeText(requireContext(), "[GET FAV RESULT]" + favoriteModel.getMessage(), Toast.LENGTH_SHORT).show();
-
+                                if (favoriteModel.getMessage().contains("Empty"))
+                                    Toast.makeText(requireContext(), "You don't have any Favorite item", Toast.LENGTH_SHORT).show();
+                                else
+                                    Toast.makeText(requireContext(), "[GET FAV RESULT]" + favoriteModel.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                             dialog.dismiss();
                         },

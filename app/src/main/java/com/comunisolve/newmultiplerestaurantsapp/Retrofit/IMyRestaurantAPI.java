@@ -36,6 +36,16 @@ public interface IMyRestaurantAPI {
     @GET("restaurant")
     Observable<RestaurantModel> getRestaurant(@Query("key") String apiKey);
 
+    @GET("restaurantById")
+    Observable<RestaurantModel> getRestaurantById(@Query("key") String apiKey,
+                                                  @Query("restaurantId") String id);
+
+    @GET("nearbyrestaurant")
+    Observable<RestaurantModel> getNearByRestaurant(@Query("key") String apiKey,
+                                                    @Query("lat") Double lat,
+                                                    @Query("lng") Double lng,
+                                                    @Query("distance") int distance);
+
     @GET("menu")
     Observable<MenuModel> getCatogories(@Query("key") String apiKey,
                                         @Query("restaurantId") int restaurantId);
@@ -92,7 +102,6 @@ public interface IMyRestaurantAPI {
                                                @Field("foodName") String foodName,
                                                @Field("foodImage") String foodImage,
                                                @Field("price") double price);
-
 
 
     @POST("createOrder")

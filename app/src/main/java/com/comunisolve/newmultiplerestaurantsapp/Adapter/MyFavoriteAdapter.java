@@ -18,6 +18,7 @@ import com.comunisolve.newmultiplerestaurantsapp.FoodDetailsActivity;
 import com.comunisolve.newmultiplerestaurantsapp.Interface.IOnRecyclerViewClickListner;
 import com.comunisolve.newmultiplerestaurantsapp.Model.Favorite;
 import com.comunisolve.newmultiplerestaurantsapp.Model.Restaurant;
+import com.comunisolve.newmultiplerestaurantsapp.Model.RestaurantModel;
 import com.comunisolve.newmultiplerestaurantsapp.R;
 import com.comunisolve.newmultiplerestaurantsapp.Retrofit.IMyRestaurantAPI;
 import com.comunisolve.newmultiplerestaurantsapp.Retrofit.RetrofitClient;
@@ -29,6 +30,7 @@ import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class MyFavoriteAdapter extends RecyclerView.Adapter<MyFavoriteAdapter.ViewHolder> {
@@ -80,14 +82,27 @@ public class MyFavoriteAdapter extends RecyclerView.Adapter<MyFavoriteAdapter.Vi
 
                                     //when user click to favorite start FoodDetailsActivity
                                     context.startActivity(new Intent(context, FoodDetailsActivity.class));
-                                    if (Common.currentRestaurant == null)
-                                        Common.currentRestaurant = new Restaurant();
+                                    if (Common.currentRestaurant == null) {
+                                        compositeDisposable.add(myRestaurantAPI.getRestaurantById(Common.API_KEY,
+                                                String.valueOf(favoriteList.get(position).getRestaurantId()))
+                                                .subscribeOn(Schedulers.io())
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribe(restaurantModel -> {
 
-                                    Common.currentRestaurant.setId(favorite.getRestaurantId());
-                                    Common.currentRestaurant.setName(favorite.getRestaurantName());
+                                                    if (restaurantModel.isSuccess()) {
+                                                        Common.currentRestaurant = restaurantModel.getResult().get(0);
+                                                        EventBus.getDefault().postSticky(new FoodDetailEvent(true, foodModel.getResult().get(0)));
 
+                                                    } else {
+                                                        Toast.makeText(context, "" + restaurantModel.getMessage(), Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }, throwable -> {
+                                                    Toast.makeText(context, "[GET RESTAURANT By ID]" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                                                }));
+                                    }else {
+                                        EventBus.getDefault().postSticky(new FoodDetailEvent(true, foodModel.getResult().get(0)));
+                                    }
 
-                                    EventBus.getDefault().postSticky(new FoodDetailEvent(true, foodModel.getResult().get(0)));
 
                                 } else {
                                     Toast.makeText(context, "[GET FOOD BY ID]" + foodModel.getMessage(), Toast.LENGTH_SHORT).show();
