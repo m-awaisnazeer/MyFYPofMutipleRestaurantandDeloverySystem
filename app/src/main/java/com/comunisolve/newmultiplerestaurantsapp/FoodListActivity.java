@@ -9,6 +9,8 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.Toast;
 
 import com.comunisolve.newmultiplerestaurantsapp.Adapter.MyFoodAdapter;
@@ -38,6 +40,9 @@ public class FoodListActivity extends AppCompatActivity {
     AlertDialog dialog;
     MyFoodAdapter adapter;
 
+    LayoutAnimationController layoutAnimationController;
+
+
 
     @Override
     protected void onDestroy() {
@@ -66,6 +71,8 @@ public class FoodListActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         binding.recyclerFoodList.setLayoutManager(linearLayoutManager);
         binding.recyclerFoodList.addItemDecoration(new DividerItemDecoration(this, linearLayoutManager.getOrientation()));
+        layoutAnimationController = AnimationUtils.loadLayoutAnimation(this, R.anim.layout_item_from_left);
+
     }
 
     private void init() {
@@ -118,6 +125,8 @@ public class FoodListActivity extends AppCompatActivity {
 
                                      adapter = new MyFoodAdapter(this,foodModel.getResult());
                                     binding.recyclerFoodList.setAdapter(adapter);
+                                    binding.recyclerFoodList.setLayoutAnimation(layoutAnimationController);
+
                                 }else {
                                   //  Toast.makeText(this, "[GET FOOD RESULT]"+foodModel.getResult().get(0).getName(), Toast.LENGTH_SHORT).show();
 

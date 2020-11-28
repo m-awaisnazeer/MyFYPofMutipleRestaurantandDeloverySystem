@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.Toast;
 
 import com.comunisolve.newmultiplerestaurantsapp.Adapter.MyCategoryAdapter;
@@ -51,6 +53,9 @@ public class MenuActivity extends AppCompatActivity {
     CompositeDisposable compositeDisposable = new CompositeDisposable();
     AlertDialog dialog;
     CartDataSource cartDataSource;
+
+    LayoutAnimationController layoutAnimationController;
+
 
 
     @Override
@@ -137,6 +142,9 @@ public class MenuActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        layoutAnimationController = AnimationUtils.loadLayoutAnimation(this, R.anim.layout_item_from_left);
+
+
         binding.fab.setOnClickListener(view -> {
             startActivity(new Intent(MenuActivity.this,CartListActivity.class));
 
@@ -218,6 +226,8 @@ public class MenuActivity extends AppCompatActivity {
 
                                         adapter = new MyCategoryAdapter(MenuActivity.this, menuModel.getResult());
                                         binding.recyclerCategory.setAdapter(adapter);
+                                        binding.recyclerCategory.setLayoutAnimation(layoutAnimationController);
+
                                     },
                                     throwable -> {
                                         Toast.makeText(this, "[Error]" + throwable.getMessage(), Toast.LENGTH_SHORT).show();

@@ -10,6 +10,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -44,6 +46,9 @@ public class CartListActivity extends AppCompatActivity {
 
     CompositeDisposable compositeDisposable = new CompositeDisposable();
     CartDataSource cartDataSource;
+
+    LayoutAnimationController layoutAnimationController;
+
 
     @Override
     protected void onDestroy() {
@@ -144,6 +149,7 @@ public class CartListActivity extends AppCompatActivity {
     private void initView() {
         binding.toolbar.setTitle(getString(R.string.cart));
         setSupportActionBar(binding.toolbar);
+        layoutAnimationController = AnimationUtils.loadLayoutAnimation(this, R.anim.layout_item_from_left);
 
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -151,6 +157,7 @@ public class CartListActivity extends AppCompatActivity {
         binding.recyclerCart.setLayoutManager(linearLayoutManager);
 
         binding.recyclerCart.addItemDecoration(new DividerItemDecoration(this, linearLayoutManager.getOrientation()));
+        binding.recyclerCart.setLayoutAnimation(layoutAnimationController);
 
         binding.btnOrder.setOnClickListener(v -> {
 

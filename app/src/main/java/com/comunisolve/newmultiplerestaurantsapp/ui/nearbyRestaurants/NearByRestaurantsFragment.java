@@ -89,6 +89,8 @@ public class NearByRestaurantsFragment extends Fragment {
 
                 if (!TextUtils.isEmpty(id)) {
                     viewModel.getRestaurantById(id).observe(getViewLifecycleOwner(), restaurantModel -> {
+                        Toast.makeText(getContext(), "" + restaurantModel.getMessage(), Toast.LENGTH_SHORT).show();
+
                         if (restaurantModel.isSuccess()) {
 
                             Common.currentRestaurant = restaurantModel.getResult().get(0);
@@ -101,6 +103,10 @@ public class NearByRestaurantsFragment extends Fragment {
                     });
                 }
             });
+
+            if (currentLocation!=null)
+                requestNearByRestaurant(currentLocation.getLatitude(),
+                    currentLocation.getLongitude(), 20);
         }
     };
 
@@ -154,10 +160,12 @@ public class NearByRestaurantsFragment extends Fragment {
                 currentLocation = locationResult.getLastLocation();
                 addMarkerAndMoveCamera(locationResult.getLastLocation());
 
-                if (isFirstLoad) {
+                if (!isFirstLoad) {
                     isFirstLoad = !isFirstLoad;
+                    Toast.makeText(getContext(), "restaurant", Toast.LENGTH_SHORT).show();
+
                     requestNearByRestaurant(locationResult.getLastLocation().getLatitude(),
-                            locationResult.getLastLocation().getLongitude(), 10);
+                            locationResult.getLastLocation().getLongitude(), 20);
                 }
             }
         };
@@ -168,6 +176,7 @@ public class NearByRestaurantsFragment extends Fragment {
         viewModel.getNearByRestaurants(latitude, longitude, distance).observe(getViewLifecycleOwner(), restaurantModel -> {
 
             if (restaurantModel.isSuccess()) {
+                Toast.makeText(getContext(), ""+restaurantModel.getResult().size(), Toast.LENGTH_SHORT).show();
                 addRestaurantMarker(restaurantModel.getResult());
             } else {
                 Toast.makeText(getContext(), "" + restaurantModel.getMessage(), Toast.LENGTH_SHORT).show();
@@ -178,6 +187,7 @@ public class NearByRestaurantsFragment extends Fragment {
     }
 
     private void addRestaurantMarker(List<Restaurant> result) {
+        Toast.makeText(getContext(), "add marker", Toast.LENGTH_SHORT).show();
         for (Restaurant restaurant : result) {
             mMap.addMarker(new MarkerOptions()
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.restaurant_marker))

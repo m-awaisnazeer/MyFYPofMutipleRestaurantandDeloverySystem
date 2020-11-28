@@ -7,6 +7,7 @@ import com.comunisolve.newmultiplerestaurantsapp.Model.CreateOrderModel;
 import com.comunisolve.newmultiplerestaurantsapp.Model.FavoriteModel;
 import com.comunisolve.newmultiplerestaurantsapp.Model.FavoriteOnlyIdModel;
 import com.comunisolve.newmultiplerestaurantsapp.Model.FoodModel;
+import com.comunisolve.newmultiplerestaurantsapp.Model.MaxOrderModel;
 import com.comunisolve.newmultiplerestaurantsapp.Model.MenuModel;
 import com.comunisolve.newmultiplerestaurantsapp.Model.OrderModel;
 import com.comunisolve.newmultiplerestaurantsapp.Model.RestaurantModel;
@@ -78,7 +79,13 @@ public interface IMyRestaurantAPI {
 
     @GET("order")
     Observable<OrderModel> getOrder(@Query("key") String key,
-                                    @Query("orderFBID") String orderFBID);
+                                    @Query("orderFBID") String orderFBID,
+                                    @Query("from") int from,
+                                    @Query("to") int to);
+
+    @GET("maxorder")
+    Observable<MaxOrderModel> getMaxOrder(@Query("key") String key,
+                                          @Query("orderFBID") String orderFBID);
 
     /*
                 ############# POST ################

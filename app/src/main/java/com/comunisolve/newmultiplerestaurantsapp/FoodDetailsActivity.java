@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -100,14 +101,19 @@ public class FoodDetailsActivity extends AppCompatActivity {
                         cartDataSource.insertOrReplaceAll(cartItem)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(() ->{
+                                .subscribe(() -> {
                                             Toast.makeText(FoodDetailsActivity.this, "Added to Cart", Toast.LENGTH_SHORT).show();
                                         },
                                         throwable -> {
-                                            Toast.makeText(FoodDetailsActivity.this, "[ADD CART]"+throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(FoodDetailsActivity.this, "[ADD CART]" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
                                         })
                 );
             }
+        });
+
+
+        binding.btnViewCart.setOnClickListener(v -> {
+            startActivity(new Intent(this, CartListActivity.class));
         });
     }
 
@@ -156,7 +162,7 @@ public class FoodDetailsActivity extends AppCompatActivity {
             binding.txtDescription.setText(event.getFood().getDescription());
             binding.txtMoney.setText(String.valueOf(originalPrice));
 
-            Picasso.get().load(Common.API_RESTAURANT_ENDPOINT+event.getFood().getImage()).into(binding.imgFoodDetails);
+            Picasso.get().load(Common.API_RESTAURANT_ENDPOINT + event.getFood().getImage()).into(binding.imgFoodDetails);
 
             if (event.getFood().isSize() && event.getFood().isAddon()) {
 
@@ -169,7 +175,7 @@ public class FoodDetailsActivity extends AppCompatActivity {
 
                                             // SEND LOCAL EVENT BUS
                                             EventBus.getDefault().post(new SizeLoadEvent(true, sizeModel.getResult()));
-                                            Toast.makeText(this, "Success SIZE "+sizeModel.getResult().get(0).getDescription(), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(this, "Success SIZE " + sizeModel.getResult().get(0).getDescription(), Toast.LENGTH_SHORT).show();
 
                                             //Load addon after load size
                                             dialog.show();
@@ -179,13 +185,13 @@ public class FoodDetailsActivity extends AppCompatActivity {
                                                             .subscribeOn(Schedulers.io())
                                                             .observeOn(AndroidSchedulers.mainThread())
                                                             .subscribe(addonModel -> {
-                                                                        Toast.makeText(this, "& Success ADDON"+addonModel.getResult().get(0).getName(), Toast.LENGTH_SHORT).show();
+                                                                        Toast.makeText(this, "& Success ADDON" + addonModel.getResult().get(0).getName(), Toast.LENGTH_SHORT).show();
                                                                         dialog.dismiss();
                                                                         EventBus.getDefault().post(new AddOnLoadEvent(true, addonModel.getResult()));
                                                                     },
                                                                     throwable -> {
                                                                         dialog.dismiss();
-                                                                        Toast.makeText(this, "[LOAD ADDON]"+throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                                                                        Toast.makeText(this, "[LOAD ADDON]" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
                                                                     })
                                             );
                                         },
@@ -234,7 +240,7 @@ public class FoodDetailsActivity extends AppCompatActivity {
                                             },
                                             throwable -> {
                                                 dialog.dismiss();
-                                                Toast.makeText(this, "[LOAD ADDON]"+throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(this, "[LOAD ADDON]" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
                                             })
                     );
                 }
@@ -242,19 +248,21 @@ public class FoodDetailsActivity extends AppCompatActivity {
 
         }
     }
+
     private void calculatePrice() {
 
-         extraPrice = 0.0;
+        extraPrice = 0.0;
         double newPrice;
 
-        extraPrice +=sizePrice;
-        extraPrice +=addonPrice;
+        extraPrice += sizePrice;
+        extraPrice += addonPrice;
 
         newPrice = originalPrice + extraPrice;
 
-        Toast.makeText(this, ""+newPrice, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "" + newPrice, Toast.LENGTH_SHORT).show();
         binding.txtMoney.setText(String.valueOf(newPrice));
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void displaySize(SizeLoadEvent event) {
         if (event.isSuccess()) {
@@ -267,8 +275,6 @@ public class FoodDetailsActivity extends AppCompatActivity {
 
                         if (isChecked) {
                             sizePrice = size.getExtraPrice();
-                        } else {
-                            sizePrice = -size.getExtraPrice();
                         }
                         calculatePrice();
                         sizeSelected = size.getDescription();
@@ -288,21 +294,22 @@ public class FoodDetailsActivity extends AppCompatActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void displayAddon(AddOnLoadEvent event){
+    public void displayAddon(AddOnLoadEvent event) {
 
-        if (event.isSuccess()){
+        if (event.isSuccess()) {
             binding.recyclerAddon.setHasFixedSize(true);
             binding.recyclerAddon.setLayoutManager(new LinearLayoutManager(this));
-            binding.recyclerAddon.setAdapter(new MyAddonAdapter(FoodDetailsActivity.this,event.getAddonList()));
+            binding.recyclerAddon.setAdapter(new MyAddonAdapter(FoodDetailsActivity.this, event.getAddonList()));
         }
     }
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onPriceChange(AddOnEventChange event){
 
-        if (event.isAdd()){
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPriceChange(AddOnEventChange event) {
+
+        if (event.isAdd()) {
             Toast.makeText(this, "Price Increased", Toast.LENGTH_SHORT).show();
-            addonPrice +=event.getAddon().getExtraPrice();
-        }else {
+            addonPrice += event.getAddon().getExtraPrice();
+        } else {
             addonPrice -= event.getAddon().getExtraPrice();
             Toast.makeText(this, "Price Decreased", Toast.LENGTH_SHORT).show();
 
@@ -311,10 +318,11 @@ public class FoodDetailsActivity extends AppCompatActivity {
 
 
     }
-    @Subscribe(sticky = true,threadMode = ThreadMode.MAIN)
-    public void priceChange(AddOnEventChange eventChange){
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void priceChange(AddOnEventChange eventChange) {
         if (eventChange.isAdd())
-            addonPrice +=eventChange.getAddon().getExtraPrice();
+            addonPrice += eventChange.getAddon().getExtraPrice();
         else {
             addonPrice -= eventChange.getAddon().getExtraPrice();
             Toast.makeText(this, "Price Decreased", Toast.LENGTH_SHORT).show();

@@ -104,6 +104,8 @@ public class FavoritesFragment extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireContext());
         recyclerView_fav_list.setLayoutManager(linearLayoutManager);
         recyclerView_fav_list.addItemDecoration(new DividerItemDecoration(requireContext(), linearLayoutManager.getOrientation()));
+
+
     }
 
     private void init() {

@@ -38,10 +38,14 @@ public class NearByRestaurantsViewModel extends AndroidViewModel {
     public MutableLiveData<RestaurantModel> getNearByRestaurants(double latitude, double longitude, int distance) {
         if (modelMutableLiveData == null) {
             modelMutableLiveData = new MutableLiveData();
+            Toast.makeText(getApplication(), "near by restaurant" , Toast.LENGTH_SHORT).show();
+
             compositeDisposable.add(myRestaurantAPI.getNearByRestaurant(Common.API_KEY, latitude, longitude, distance)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(restaurantModel -> {
+
+                        Toast.makeText(getApplication(), "" + restaurantModel.getResult().size(), Toast.LENGTH_SHORT).show();
 
                         modelMutableLiveData.setValue(restaurantModel);
                     }, throwable -> {

@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -49,6 +51,8 @@ public class AllRestaurants extends Fragment {
     CompositeDisposable compositeDisposable = new CompositeDisposable();
     AlertDialog dialog;
 
+    LayoutAnimationController layoutAnimationController;
+
     @Override
     public void onDestroy() {
         compositeDisposable.clear();
@@ -80,11 +84,11 @@ public class AllRestaurants extends Fragment {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(restaurantModel -> {
-                            Log.d(TAG, "loadRestaurant: "+restaurantModel.getResult().get(0).getName());
+                            Log.d(TAG, "loadRestaurant: " + restaurantModel.getResult().get(0).getName());
                             EventBus.getDefault().post(new RestaurantLoadEvent(true, restaurantModel.getResult()));
                         },
                         throwable -> {
-                            Log.d(TAG, "loadRestaurant: "+throwable.getMessage());
+                            Log.d(TAG, "loadRestaurant: " + throwable.getMessage());
                             EventBus.getDefault().post(new RestaurantLoadEvent(false, throwable.getMessage()));
 
                         }));
@@ -93,6 +97,8 @@ public class AllRestaurants extends Fragment {
     private void initView() {
         recycler_restaurant.setLayoutManager(new LinearLayoutManager(requireContext()));
         recycler_restaurant.addItemDecoration(new DividerItemDecoration(requireContext(), new LinearLayoutManager(requireContext()).getOrientation()));
+
+        layoutAnimationController = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.layout_item_from_left);
     }
 
     private void init() {
@@ -127,13 +133,14 @@ public class AllRestaurants extends Fragment {
     }
 
     private void displayRestaurant(List<Restaurant> restaurantList) {
-        MyRestaurantAdapter adapter = new MyRestaurantAdapter(requireContext(),restaurantList);
+        MyRestaurantAdapter adapter = new MyRestaurantAdapter(requireContext(), restaurantList);
         recycler_restaurant.setAdapter(adapter);
+        recycler_restaurant.setLayoutAnimation(layoutAnimationController);
     }
 
     private void displayBanner(List<Restaurant> restaurantList) {
         Log.d(TAG, "displayBanner: success");
-       // Toast.makeText(getActivity(), "success", Toast.LENGTH_SHORT).show();
+        // Toast.makeText(getActivity(), "success", Toast.LENGTH_SHORT).show();
         banner_slider.setAdapter(new RestaurantSliderAdapter(restaurantList));
     }
 }
