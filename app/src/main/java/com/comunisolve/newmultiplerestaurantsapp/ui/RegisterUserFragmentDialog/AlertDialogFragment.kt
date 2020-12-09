@@ -21,7 +21,9 @@ import com.comunisolve.newmultiplerestaurantsapp.R
 import com.comunisolve.newmultiplerestaurantsapp.Retrofit.IMyRestaurantAPI
 import com.comunisolve.newmultiplerestaurantsapp.Retrofit.RetrofitClient
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.iid.FirebaseInstanceId
 import dmax.dialog.SpotsDialog
+import io.paperdb.Paper
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -60,6 +62,7 @@ class AlertDialogFragment : DialogFragment() {
         dialog = SpotsDialog.Builder().setCancelable(false).setContext(requireContext()).build()
 
 
+        Paper.init(requireContext())
         editUserName = view.findViewById(R.id.edit_name)
         editUserPhone = view.findViewById(R.id.edit_phone)
         editUserAddress = view.findViewById(R.id.txt_user_address)
@@ -73,43 +76,72 @@ class AlertDialogFragment : DialogFragment() {
             current_user_id = FirebaseAuth.getInstance().currentUser!!.uid
 
             if (current_user_id == null || TextUtils.isEmpty(current_user_id)) {
+
             } else {
-                disposable.add(myRestaurantAPI!!.updateUserInfo(Common.API_KEY,
-                        editUserPhone.getText().toString(),
-                        editUserName.getText().toString(),
-                        editUserAddress.getText().toString(),
-                        current_user_id)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({ updateUserModel: UpdateUserModel ->
-                            if (updateUserModel.isSuccess) {
-                                disposable.add(myRestaurantAPI!!.getUser(Common.API_KEY, current_user_id)
-                                        .subscribeOn(Schedulers.io())
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe({ userModel: UserModel ->
-                                            if (userModel.isSuccess) {
-                                                getDialog()!!.dismiss()
-                                                Common.currentUser = userModel.result[0]
-                                                startActivity(Intent(requireContext(), HomeActivity::class.java))
-                                                requireActivity().finish()
-                                            } else {
-                                                Toast.makeText(requireContext(), "[GET USER RESULT]" + userModel.message, Toast.LENGTH_SHORT).show()
-                                            }
-                                            dialog!!.dismiss()
-                                        }
-                                        ) { throwable: Throwable ->
-                                            dialog!!.dismiss()
-                                            Toast.makeText(requireContext(), "[GET USER ]" + throwable.message, Toast.LENGTH_SHORT).show()
-                                        })
-                            } else {
-                                dialog!!.dismiss()
-                                Toast.makeText(requireContext(), "[UPDATE USER API RETURN]" + updateUserModel.message, Toast.LENGTH_SHORT).show()
-                            }
+                Paper.book().write(Common.REMEMBER_FBID, current_user_id)
+                FirebaseInstanceId.getInstance().instanceId
+                        .addOnFailureListener {
+                            Toast.makeText(requireContext(), "[Update User API]" + it.message, Toast.LENGTH_SHORT).show()
+
                         }
-                        ) { throwable: Throwable ->
-                            dialog!!.dismiss()
-                            Toast.makeText(requireContext(), "[Update User API]" + throwable.message, Toast.LENGTH_SHORT).show()
-                        })
+                        .addOnSuccessListener {
+
+                            disposable.add(myRestaurantAPI!!.updateTokenToServer(Common.API_KEY,
+                                    current_user_id, it.token)
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe({
+
+                                        if (!it.isSuccess)
+                                            Toast.makeText(requireContext(), "[Update Token API]" + it.message, Toast.LENGTH_SHORT).show()
+
+                                        disposable.add(myRestaurantAPI!!.updateUserInfo(Common.API_KEY,
+                                                editUserPhone.getText().toString(),
+                                                editUserName.getText().toString(),
+                                                editUserAddress.getText().toString(),
+                                                current_user_id)
+                                                .subscribeOn(Schedulers.io())
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribe({ updateUserModel: UpdateUserModel ->
+                                                    if (updateUserModel.isSuccess) {
+                                                        disposable.add(myRestaurantAPI!!.getUser(Common.API_KEY, current_user_id)
+                                                                .subscribeOn(Schedulers.io())
+                                                                .observeOn(AndroidSchedulers.mainThread())
+                                                                .subscribe({ userModel: UserModel ->
+                                                                    if (userModel.isSuccess) {
+                                                                        getDialog()!!.dismiss()
+                                                                        Common.currentUser = userModel.result[0]
+                                                                        startActivity(Intent(requireContext(), HomeActivity::class.java))
+                                                                        requireActivity().finish()
+                                                                    } else {
+                                                                        Toast.makeText(requireContext(), "[GET USER RESULT]" + userModel.message, Toast.LENGTH_SHORT).show()
+                                                                    }
+                                                                    dialog!!.dismiss()
+                                                                }
+                                                                ) { throwable: Throwable ->
+                                                                    dialog!!.dismiss()
+                                                                    Toast.makeText(requireContext(), "[GET USER ]" + throwable.message, Toast.LENGTH_SHORT).show()
+                                                                })
+                                                    } else {
+                                                        dialog!!.dismiss()
+                                                        Toast.makeText(requireContext(), "[UPDATE USER API RETURN]" + updateUserModel.message, Toast.LENGTH_SHORT).show()
+                                                    }
+                                                }
+                                                ) { throwable: Throwable ->
+                                                    dialog!!.dismiss()
+                                                    Toast.makeText(requireContext(), "[Update User API]" + throwable.message, Toast.LENGTH_SHORT).show()
+                                                })
+
+                                    }, {
+                                        Toast.makeText(requireContext(), "[Update Token API]" + it.message, Toast.LENGTH_SHORT).show()
+
+                                    }))
+                            //
+
+                        }
+
+                //
+
             }
         }
 

@@ -8,6 +8,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -58,6 +59,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements DatePickerD
     IMyRestaurantAPI myRestaurantAPI;
     IBraintreeAPI braintreeAPI;
     AlertDialog dialog;
+    private static final String TAG = "PlaceOrderActivity";
     CartDataSource cartDataSource;
     CompositeDisposable compositeDisposable = new CompositeDisposable();
 
@@ -196,47 +198,49 @@ public class PlaceOrderActivity extends AppCompatActivity implements DatePickerD
                                                         new Gson().toJson(cartItems)
                                                         //""
                                                         )
-                                                        .subscribeOn(Schedulers.io())
-                                                        .observeOn(AndroidSchedulers.mainThread())
-                                                        .subscribe(updateOrderModel -> {
+                                                                .subscribeOn(Schedulers.io())
+                                                                .observeOn(AndroidSchedulers.mainThread())
+                                                                .subscribe(updateOrderModel -> {
+                                                                    Log.d(TAG, "getOrderNumber Success , COD: " + new Gson().toJson(cartItems));
+                                                                    if (updateOrderModel.isSuccess()) {
 
-                                                            if (updateOrderModel.isSuccess()) {
+                                                                        //After updated item, we will clear cart and show message success
 
-                                                                //After updated item, we will clear cart and show message success
+                                                                        cartDataSource.cleanCart(Common.currentUser.getFbid(),
+                                                                                Common.currentRestaurant.getId())
+                                                                                .subscribeOn(Schedulers.io())
+                                                                                .observeOn(AndroidSchedulers.mainThread())
+                                                                                .subscribe(new SingleObserver<Integer>() {
+                                                                                    @Override
+                                                                                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
 
-                                                                cartDataSource.cleanCart(Common.currentUser.getFbid(),
-                                                                        Common.currentRestaurant.getId())
-                                                                        .subscribeOn(Schedulers.io())
-                                                                        .observeOn(AndroidSchedulers.mainThread())
-                                                                        .subscribe(new SingleObserver<Integer>() {
-                                                                            @Override
-                                                                            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+                                                                                    }
 
-                                                                            }
+                                                                                    @Override
+                                                                                    public void onSuccess(@io.reactivex.annotations.NonNull Integer integer) {
+                                                                                        Toast.makeText(PlaceOrderActivity.this, "Order Placed", Toast.LENGTH_SHORT).show();
+                                                                                        Intent homeActivity = new Intent(PlaceOrderActivity.this, HomeActivity.class);
+                                                                                        homeActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                                                        startActivity(homeActivity);
+                                                                                        finish();
+                                                                                    }
 
-                                                                            @Override
-                                                                            public void onSuccess(@io.reactivex.annotations.NonNull Integer integer) {
-                                                                                Toast.makeText(PlaceOrderActivity.this, "Order Placed", Toast.LENGTH_SHORT).show();
-                                                                                Intent homeActivity = new Intent(PlaceOrderActivity.this, HomeActivity.class);
-                                                                                homeActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                                                startActivity(homeActivity);
-                                                                                finish();
-                                                                            }
+                                                                                    @Override
+                                                                                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                                                                                        Toast.makeText(PlaceOrderActivity.this, "[CLEAN CART]" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                                                    }
+                                                                                });
 
-                                                                            @Override
-                                                                            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-                                                                                Toast.makeText(PlaceOrderActivity.this, "[CLEAN CART]" + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                                                            }
-                                                                        });
+                                                                    }
+                                                                    if (dialog.isShowing())
+                                                                        dialog.dismiss();
+                                                                }, throwable -> {
+                                                                    Log.d(TAG, "getOrderNumber Error,COD: " + new Gson().toJson(cartItems));
 
-                                                            }
-                                                            if (dialog.isShowing())
-                                                                dialog.dismiss();
-                                                        }, throwable -> {
-                                                            dialog.dismiss();
-                                                            Toast.makeText(this, "[Update ORDER ]" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                                                                    dialog.dismiss();
+                                                                    Toast.makeText(this, "[Update ORDER ]" + throwable.getMessage()+"\n\n"+ new Gson().toJson(cartItems), Toast.LENGTH_LONG).show();
 
-                                                        })
+                                                                })
                                                 );
                                             } else {
                                                 dialog.dismiss();
@@ -250,28 +254,27 @@ public class PlaceOrderActivity extends AppCompatActivity implements DatePickerD
                     }, throwable -> {
                         Toast.makeText(this, "[GET ALL CART]" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
                     }));
-        }
-        else {
+        } else {
             //if online payment
 
             compositeDisposable.add(braintreeAPI.getToken()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(braintreeToken -> {
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(braintreeToken -> {
 
-                //if (braintreeToken.isSuccess()){
+                                //if (braintreeToken.isSuccess()){
 
-                    DropInRequest dropInRequest = new DropInRequest().clientToken(braintreeToken.getClientToken());
-                    startActivityForResult(dropInRequest.getIntent(this),REQUEST_BRAINTREE_CODE);
+                                DropInRequest dropInRequest = new DropInRequest().clientToken(braintreeToken.getClientToken());
+                                startActivityForResult(dropInRequest.getIntent(this), REQUEST_BRAINTREE_CODE);
 //                }else {
 //                    Toast.makeText(this, "Cant get Token", Toast.LENGTH_SHORT).show();
 //                }
-                dialog.dismiss();
+                                dialog.dismiss();
 
-            }, throwable -> {
-                dialog.dismiss();
-                Toast.makeText(this, "[GET TOKEN]"+throwable.getMessage(), Toast.LENGTH_SHORT).show();
-            })
+                            }, throwable -> {
+                                dialog.dismiss();
+                                Toast.makeText(this, "[GET TOKEN]" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                            })
             );
         }
     }
@@ -290,7 +293,7 @@ public class PlaceOrderActivity extends AppCompatActivity implements DatePickerD
         isSelectedDate = true;
 
         binding.edtDate.setText(new StringBuilder("")
-                .append(monthOfYear+1)
+                .append(monthOfYear + 1)
                 .append("/")
                 .append(dayOfMonth)
                 .append("/")
@@ -312,125 +315,125 @@ public class PlaceOrderActivity extends AppCompatActivity implements DatePickerD
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_BRAINTREE_CODE){
-            if (resultCode == RESULT_OK)
-            {
+        if (requestCode == REQUEST_BRAINTREE_CODE) {
+            if (resultCode == RESULT_OK) {
                 DropInResult result = data.getParcelableExtra(DropInResult.EXTRA_DROP_IN_RESULT);
                 PaymentMethodNonce nonce = result.getPaymentMethodNonce();
 
-                if (!TextUtils.isEmpty(binding.txtTotalCash.toString())){
+                if (!TextUtils.isEmpty(binding.txtTotalCash.toString())) {
                     String amount = binding.txtTotalCash.getText().toString();
 
-                    if (!dialog.isShowing()){
+                    if (!dialog.isShowing()) {
                         dialog.show();
                     }
 
-                    String address = binding.ckbDefaultAddress.isChecked() ? binding.txtUserAddress.getText().toString(): binding.txtNewAddress.getText().toString();
+                    String address = binding.ckbDefaultAddress.isChecked() ? binding.txtUserAddress.getText().toString() : binding.txtNewAddress.getText().toString();
 
-                    compositeDisposable.add(braintreeAPI.submitPayment(amount,nonce.getNonce())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(braintreeTransaction -> {
+                    compositeDisposable.add(braintreeAPI.submitPayment(amount, nonce.getNonce())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(braintreeTransaction -> {
 
-                        if (braintreeTransaction.isSuccess()){
+                                if (braintreeTransaction.isSuccess()) {
 
-                            if (!dialog.isShowing())
-                                dialog.show();
-                            //After we have transaction , just make order like cod payment
-                            compositeDisposable.add(cartDataSource.getAllCart(Common.currentUser.getFbid(),
-                                    Common.currentRestaurant.getId())
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(cartItems -> {
+                                    if (!dialog.isShowing())
+                                        dialog.show();
+                                    //After we have transaction , just make order like cod payment
+                                    compositeDisposable.add(cartDataSource.getAllCart(Common.currentUser.getFbid(),
+                                            Common.currentRestaurant.getId())
+                                            .subscribeOn(Schedulers.io())
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribe(cartItems -> {
 
-                                        compositeDisposable.add(myRestaurantAPI.createOrder(Common.API_KEY,
-                                                Common.currentUser.getFbid(),
-                                                Common.currentUser.getUserPhone(),
-                                                Common.currentUser.getName(),
-                                                address,
-                                                binding.edtDate.getText().toString(),
-                                                Common.currentRestaurant.getId(),
-                                                braintreeTransaction.getTransaction().getId(),
-                                                0,
-                                                Double.valueOf(amount),
-                                                cartItems.size())
-                                                .subscribeOn(Schedulers.io())
-                                                .observeOn(AndroidSchedulers.mainThread())
-                                                .subscribe(createOrderModel -> {
+                                                compositeDisposable.add(myRestaurantAPI.createOrder(Common.API_KEY,
+                                                        Common.currentUser.getFbid(),
+                                                        Common.currentUser.getUserPhone(),
+                                                        Common.currentUser.getName(),
+                                                        address,
+                                                        binding.edtDate.getText().toString(),
+                                                        Common.currentRestaurant.getId(),
+                                                        braintreeTransaction.getTransaction().getId(),
+                                                        0,
+                                                        Double.valueOf(amount),
+                                                        cartItems.size())
+                                                        .subscribeOn(Schedulers.io())
+                                                        .observeOn(AndroidSchedulers.mainThread())
+                                                        .subscribe(createOrderModel -> {
 
-                                                            if (createOrderModel.isSuccess()) {
-                                                                //After have orderNumber , we will update all item of this order to orderDetails
-                                                                //First, Select Cart items
+                                                                    if (createOrderModel.isSuccess()) {
+                                                                        //After have orderNumber , we will update all item of this order to orderDetails
+                                                                        //First, Select Cart items
 
-                                                                compositeDisposable.add(myRestaurantAPI.updateOrder(Common.API_KEY,
-                                                                        String.valueOf(createOrderModel.getResult().get(0).getOrderNumber()),
-                                                                        new Gson().toJson(cartItems)
-                                                                        //""
-                                                                        )
-                                                                                .subscribeOn(Schedulers.io())
-                                                                                .observeOn(AndroidSchedulers.mainThread())
-                                                                                .subscribe(updateOrderModel -> {
+                                                                        compositeDisposable.add(myRestaurantAPI.updateOrder(Common.API_KEY,
+                                                                                String.valueOf(createOrderModel.getResult().get(0).getOrderNumber()),
+                                                                                new Gson().toJson(cartItems)
+                                                                                //""
+                                                                                ).subscribeOn(Schedulers.io())
+                                                                                        .observeOn(AndroidSchedulers.mainThread())
+                                                                                        .subscribe(updateOrderModel -> {
 
-                                                                                    if (updateOrderModel.isSuccess()) {
+                                                                                            if (updateOrderModel.isSuccess()) {
 
-                                                                                        //After updated item, we will clear cart and show message success
+                                                                                                Log.d(TAG, "onActivityResult Success ONLINE: " + new Gson().toJson(cartItems));                                                                                                //After updated item, we will clear cart and show message success
 
-                                                                                        cartDataSource.cleanCart(Common.currentUser.getFbid(),
-                                                                                                Common.currentRestaurant.getId())
-                                                                                                .subscribeOn(Schedulers.io())
-                                                                                                .observeOn(AndroidSchedulers.mainThread())
-                                                                                                .subscribe(new SingleObserver<Integer>() {
-                                                                                                    @Override
-                                                                                                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+                                                                                                cartDataSource.cleanCart(Common.currentUser.getFbid(),
+                                                                                                        Common.currentRestaurant.getId())
+                                                                                                        .subscribeOn(Schedulers.io())
+                                                                                                        .observeOn(AndroidSchedulers.mainThread())
+                                                                                                        .subscribe(new SingleObserver<Integer>() {
+                                                                                                            @Override
+                                                                                                            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
 
-                                                                                                    }
+                                                                                                            }
 
-                                                                                                    @Override
-                                                                                                    public void onSuccess(@io.reactivex.annotations.NonNull Integer integer) {
-                                                                                                        Toast.makeText(PlaceOrderActivity.this, "Order Placed", Toast.LENGTH_SHORT).show();
-                                                                                                        Intent homeActivity = new Intent(PlaceOrderActivity.this, HomeActivity.class);
-                                                                                                        homeActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                                                                        startActivity(homeActivity);
-                                                                                                        finish();
-                                                                                                    }
+                                                                                                            @Override
+                                                                                                            public void onSuccess(@io.reactivex.annotations.NonNull Integer integer) {
+                                                                                                                Toast.makeText(PlaceOrderActivity.this, "Order Placed", Toast.LENGTH_SHORT).show();
+                                                                                                                Intent homeActivity = new Intent(PlaceOrderActivity.this, HomeActivity.class);
+                                                                                                                homeActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                                                                                startActivity(homeActivity);
+                                                                                                                finish();
+                                                                                                            }
 
-                                                                                                    @Override
-                                                                                                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-                                                                                                        Toast.makeText(PlaceOrderActivity.this, "[CLEAN CART]" + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                                                                                    }
-                                                                                                });
+                                                                                                            @Override
+                                                                                                            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                                                                                                                Toast.makeText(PlaceOrderActivity.this, "[CLEAN CART]" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                                                                            }
+                                                                                                        });
 
-                                                                                    }
-                                                                                    if (dialog.isShowing())
-                                                                                        dialog.dismiss();
-                                                                                }, throwable -> {
-                                                                                    dialog.dismiss();
-                                                                                    Toast.makeText(this, "[Update ORDER ]" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                                                                                            }
+                                                                                            if (dialog.isShowing())
+                                                                                                dialog.dismiss();
+                                                                                        }, throwable -> {
+                                                                                            Log.d(TAG, "onActivityResult Error: ONLINE " + new Gson().toJson(cartItems));
 
-                                                                                })
-                                                                );
-                                                            } else {
-                                                                dialog.dismiss();
-                                                                Toast.makeText(this, "[CREATE ORDER Error]" + createOrderModel.getMessage(), Toast.LENGTH_SHORT).show();
-                                                            }
-                                                        },
-                                                        throwable -> {
-                                                            dialog.dismiss();
-                                                            Toast.makeText(this, "[CREATE ORDER]" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
-                                                        }));
-                                    }, throwable -> {
-                                        Toast.makeText(this, "[GET ALL CART]" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
-                                    }));
-                        }else {
-                            Toast.makeText(this, "Transacion Failed", Toast.LENGTH_SHORT).show();
-                        }
-                        dialog.dismiss();
-                    }, throwable -> {
+                                                                                            dialog.dismiss();
+                                                                                            Toast.makeText(this, "[Update ORDER ]" + throwable.getMessage()+"\n"+new Gson().toJson(cartItems), Toast.LENGTH_SHORT).show();
 
-                        if (dialog.isShowing())
-                            dialog.dismiss();
-                        Toast.makeText(this, "[SUBMIT PAYMENT]"+throwable.getMessage(), Toast.LENGTH_SHORT).show();
-                    }));
+                                                                                        })
+                                                                        );
+                                                                    } else {
+                                                                        dialog.dismiss();
+                                                                        Toast.makeText(this, "[CREATE ORDER Error]" + createOrderModel.getMessage(), Toast.LENGTH_SHORT).show();
+                                                                    }
+                                                                },
+                                                                throwable -> {
+                                                                    dialog.dismiss();
+                                                                    Toast.makeText(this, "[CREATE ORDER]" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                                                                }));
+                                            }, throwable -> {
+                                                Toast.makeText(this, "[GET ALL CART]" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                                            }));
+                                } else {
+                                    Toast.makeText(this, "Transacion Failed", Toast.LENGTH_SHORT).show();
+                                }
+                                dialog.dismiss();
+                            }, throwable -> {
+
+                                if (dialog.isShowing())
+                                    dialog.dismiss();
+                                Toast.makeText(this, "[SUBMIT PAYMENT]" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                            }));
                 }
             }
         }

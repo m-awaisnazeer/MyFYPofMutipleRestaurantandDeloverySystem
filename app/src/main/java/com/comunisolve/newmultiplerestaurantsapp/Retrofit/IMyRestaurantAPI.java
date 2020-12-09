@@ -12,6 +12,7 @@ import com.comunisolve.newmultiplerestaurantsapp.Model.MenuModel;
 import com.comunisolve.newmultiplerestaurantsapp.Model.OrderModel;
 import com.comunisolve.newmultiplerestaurantsapp.Model.RestaurantModel;
 import com.comunisolve.newmultiplerestaurantsapp.Model.SizeModel;
+import com.comunisolve.newmultiplerestaurantsapp.Model.TokenModel;
 import com.comunisolve.newmultiplerestaurantsapp.Model.UpdateOrderModel;
 import com.comunisolve.newmultiplerestaurantsapp.Model.UpdateUserModel;
 import com.comunisolve.newmultiplerestaurantsapp.Model.UserModel;
@@ -87,6 +88,10 @@ public interface IMyRestaurantAPI {
     Observable<MaxOrderModel> getMaxOrder(@Query("key") String key,
                                           @Query("orderFBID") String orderFBID);
 
+    @GET("token")
+    Observable<TokenModel> getToken(@Query("key") String key,
+                                    @Query("fbid") String fbid);
+
     /*
                 ############# POST ################
      */
@@ -124,14 +129,21 @@ public interface IMyRestaurantAPI {
                                              @Field("cod") int cod,
                                              @Field("totalPrice") Double totalPrice, ////issue
                                              @Field("numOfItem") int numOfItem
+    );
 
+    @POST("token")
+    @FormUrlEncoded
+    Observable<TokenModel> updateTokenToServer(@Field("key") String key,
+                                       @Field("fbid") String fbid,
+                                       @Field("token") String token
     );
 
     @POST("updateOrder")
     @FormUrlEncoded
-    Observable<UpdateOrderModel> updateOrder(@Field("key") String key,
-                                             @Field("orderId") String orderId,
-                                             @Field("orderDetail") String orderDetail);
+    Observable<UpdateOrderModel> updateOrder(
+            @Field("key") String key,
+            @Field("orderId") String orderId,
+            @Field("orderDetail") String orderDetail);
 
     /*
               ############# DELETE ################

@@ -43,8 +43,8 @@ public class EnterIPAddress extends AppCompatActivity {
         activityEnterIPAddressBinding.continueWithOldIp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Common.API_RESTAURANT_ENDPOINT = "http://192.168.42.241:3000/";
-                Common.API_RESTAURANT_Payment_ENDPOINT = "http://192.168.42.241:3001/";
+                Common.API_RESTAURANT_ENDPOINT = "http://192.168.1.103:3000/";
+                Common.API_RESTAURANT_Payment_ENDPOINT = "http://192.168.1.103:3001/";
                 startActivity(new Intent(EnterIPAddress.this, StartActivity.class));
                 finish();
             }
