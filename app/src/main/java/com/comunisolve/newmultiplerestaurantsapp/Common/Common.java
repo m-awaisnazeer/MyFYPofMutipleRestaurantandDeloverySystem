@@ -83,38 +83,47 @@ Common {
     public static void showNotification(Context context, int notiId, String title, String body, Intent intent) {
         PendingIntent pendingIntent = null;
 
-        if (pendingIntent != null)
+        if (intent != null)
             pendingIntent = PendingIntent.getActivity(context, notiId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            String NOTIFICATION_CHANNEL_ID = "foodversy_my_restaurant";
-            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        String NOTIFICATION_CHANNEL_ID = "foodversy_my_restaurant";
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
-                        "Foodversy Notifications", NotificationManager.IMPORTANCE_DEFAULT);
-                notificationChannel.setDescription("Foodversy Client App");
-                notificationChannel.enableLights(true);
-                notificationChannel.setLightColor(Color.RED);
-                notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
+                    "Foodversy Notifications", NotificationManager.IMPORTANCE_DEFAULT);
+            notificationChannel.setDescription("Foodversy Client App");
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.RED);
+            notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
+            notificationChannel.enableVibration(true);
 
-                notificationManager.createNotificationChannel(notificationChannel);
-            }
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
-                    NOTIFICATION_CHANNEL_ID);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
+                NOTIFICATION_CHANNEL_ID);
 
-            builder.setContentTitle(title)
-                    .setContentText(body)
-                    .setAutoCancel(true)
-                    .setSmallIcon(R.mipmap.ic_launcher_round)
-                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.app_icon));
+        builder.setContentTitle(title)
+                .setContentText(body)
+                .setAutoCancel(true)
+                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.app_icon));
 
 
-            if (pendingIntent != null)
-                builder.setContentIntent(pendingIntent);
-            Notification notification = builder.build();
+        if (pendingIntent != null)
+            builder.setContentIntent(pendingIntent);
+        Notification notification = builder.build();
 
-            notificationManager.notify(notiId, notification);
+        notificationManager.notify(notiId, notification);
 
+    }
+
+    public static String getTopicChannel(int id) {
+        return new StringBuilder("Restaurant_").append(id).toString();
+    }
+
+    public static String createTopicSender(String topicChannel) {
+        return new StringBuilder("/topics/").append(topicChannel).toString();
     }
 }
