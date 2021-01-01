@@ -116,6 +116,7 @@ class StartActivity : AppCompatActivity() {
 
                                     Log.d(TAG, "onPermissionGranted: "+it.message)
                                 }.addOnCompleteListener {
+                                    Log.d(TAG, "onPermissionGranted: "+it.result.token)
 
 
                                     val user: FirebaseUser?
@@ -144,6 +145,7 @@ class StartActivity : AppCompatActivity() {
     }
 
     private fun showRegisterLayout(user: FirebaseUser, task: Task<InstanceIdResult>) {
+        Paper.book().write(Common.REMEMBER_FBID, user.uid)
 
         compositeDisposable.add(myRestaurantAPI!!.updateTokenToServer(
                 Common.API_KEY,

@@ -118,7 +118,6 @@ Common {
         notificationManager.notify(notiId, notification);
 
     }
-
     public static String getTopicChannel(int id) {
         return new StringBuilder("Restaurant_").append(id).toString();
     }

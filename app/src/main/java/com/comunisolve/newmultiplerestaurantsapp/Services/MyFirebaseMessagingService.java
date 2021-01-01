@@ -66,10 +66,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
 
-        //Get Notifocation object from FCM
-        // Because we want to retrive notification while app killed, so we must use Data payload
-
-        Toast.makeText(this, "new message"+remoteMessage.getData().get("title"), Toast.LENGTH_SHORT).show();
         Map<String, String> dataRecv = remoteMessage.getData();
         if (dataRecv != null) {
 
